@@ -4,6 +4,8 @@ Esse é um simples gerador e validador de CPFs para te ajudar em suas aplicaçõ
 - PHP 7 ou superior
 - Composer (Recomendado)
 ## Instalação
+Instalação simples com composer: `composer require misterioso013/cpf`
+
 **OBS:** Composer não é obrigatório
 ```php
 <?php
