@@ -1,0 +1,29 @@
+{
+  "name": "misterioso013/cpf",
+  "description": "Simples Gerador e Validador de CPF PHP",
+  "minimum-stability": "dev",
+  "homepage": "https://github.com/misterioso013/cpf",
+  "license": "MIT",
+  "keywords": [
+    "CFP Generator",
+    "CPF Validate",
+    "CPF"
+  ],
+  "authors": [
+    {
+      "name": "Rosiel Victor",
+      "email": "ola@devsonhador.com.br",
+      "homepage": "https://helpdevelop.top",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Misterioso013\\Tools\\": "src/"
+    }
+  },
+  "type": "library"
+}
