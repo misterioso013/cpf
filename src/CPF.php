@@ -10,7 +10,7 @@ class CPF
      * @param int|null $cpf
      * @return boolean
      */
-    public static function validateCPF(int $cpf = null): bool
+    public static function validateCPF($cpf = null): bool
     {
 
         if (empty($cpf)) {
