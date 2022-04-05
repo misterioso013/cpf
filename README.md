@@ -21,11 +21,11 @@ use Misterioso013\Tools\CPF;
 echo CPF::cpfRandom();
 
 // Gerar um CPF válido aleatórios sem máscara (12345678910)
-var_dump(CPF::cpfRandom(0));
+echo CPF::cpfRandom(0);
 
 
 // Verificar se o CPF é válido retorna true ou false
-echo CPF::validateCPF('12345678910');
+var_dump(CPF::validateCPF('12345678910'));
 
 // Exemplo de uso
 $cpf = CPF::cpfRandom();
