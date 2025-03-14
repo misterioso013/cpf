@@ -1,46 +1,75 @@
-# Gerador e validador de CPF
+# Gerador e validador de CPF 🇧🇷
 
-Esse é um simples gerador e validador de CPFs para te ajudar em suas aplicações PHP.
+![CI Status](https://github.com/misterioso013/cpf/workflows/CI/badge.svg)
+[![Latest Stable Version](https://poser.pugx.org/misterioso013/cpf/v)](https://packagist.org/packages/misterioso013/cpf)
+[![License](https://poser.pugx.org/misterioso013/cpf/license)](https://packagist.org/packages/misterioso013/cpf)
 
-### Requisitos
+Biblioteca PHP moderna para geração e validação de CPFs.
 
-- PHP 7 ou superior
-- Composer (Recomendado)
+### Requisitos 📋
 
-## Instalação
+- PHP 8.1 ou superior
+- Composer
 
-Instalação simples com composer: `composer require misterioso013/cpf`
+## Instalação 💿
 
-**OBS:** Composer não é obrigatório
-
-```php
-<?php
-// Instalação simples
-// require 'src/CPF.php';
-
-// Instalação com composer
-require __DIR__. '/vendor/autoload.php';
-
-use Misterioso013\Tools\CPF;
-
-// Gerar um CPF válidos aleatórios formatados (123.456.789-10)
-echo CPF::cpfRandom()."\n";
-
-// Gerar um CPF válidos aleatórios sem máscara (12345678910)
-echo CPF::cpfRandom(false)."\n";
-
-// Verificar se o CPF é válido retorna true ou false
-var_dump(CPF::validateCPF('12345678910'));
-
-// Verificar em qual(is) UF(s) o CPF foi emitido
-print_r(CPF::whichUF(12345678910, false));
-
-// Exemplo de uso
-$cpf = CPF::cpfRandom();
-echo CPF::validateCPF($cpf) ? "O CPF: $cpf é válido e só pode ter sido emitido  na(s) UF(s): ".CPF::whichUF($cpf) : "$cpf não é um CPF válido!";
+```bash
+composer require misterioso013/cpf
 ```
 
-Esse projeto é bem simples e leve, pode ser usado em qualquer aplicação PHP independente do seu tamanho.
+## Uso 🚀
 
-Pretendo desenvolver mais projetos como esse em breve, se você tiver alguma ideia de algo legal que possa ser feito, por
-favor, deixe-me saber [aqui](https://github.com/misterioso013#conecte-se-comigo).
+### Usando Value Object (Recomendado)
+
+```php
+use Misterioso013\Tools\ValueObjects\Cpf;
+
+// Criar um CPF a partir de uma string
+$cpf = new Cpf('12345678909');
+
+// Formatar CPF
+echo $cpf->format(); // 123.456.789-09
+
+// Gerar CPF aleatório
+$cpf = Cpf::generate(); // Com máscara por padrão
+$cpf = Cpf::generate(false); // Sem máscara
+
+// Gerar CPF para um estado específico
+$cpf = Cpf::generate(true, 'SP');
+
+// Verificar UF do CPF
+echo $cpf->getUF(); // Retorna string (ex: "SP")
+$ufs = $cpf->getUF(false); // Retorna array
+```
+
+### Usando API Legacy
+
+```php
+use Misterioso013\Tools\CPF;
+
+// Gerar CPF válido formatado (123.456.789-10)
+echo CPF::cpfRandom();
+
+// Gerar CPF válido sem máscara (12345678910)
+echo CPF::cpfRandom(false);
+
+// Verificar se CPF é válido
+var_dump(CPF::validateCPF('12345678910'));
+
+// Verificar UF do CPF
+print_r(CPF::whichUF('12345678910', false));
+```
+
+## Testes 🧪
+
+```bash
+composer test
+```
+
+## Contribuindo 🤝
+
+Contribuições são bem-vindas! Por favor, leia as [diretrizes de contribuição](CONTRIBUTING.md) antes de enviar um PR.
+
+## Licença 📄
+
+Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.

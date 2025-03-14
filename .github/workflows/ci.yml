@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: ["8.1", "8.2", "8.3"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml, dom
+          coverage: xdebug
+
+      - name: Install Dependencies
+        run: |
+          composer update --prefer-dist --no-interaction --no-progress
+          composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Check Code Style
+        run: composer cs-fix
+
+      - name: Static Analysis
+        run: composer analyse
+
+      - name: Run Tests
+        run: composer test

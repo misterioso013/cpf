@@ -1,55 +1,43 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Misterioso013\Tools;
+
+use function count;
+use function floor;
+use function in_array;
+use function round;
+use function substr;
+use InvalidArgumentException;
 
 class CPF
 {
-    /**
-     * Relaciona estados ao nono dígito do CPF
-     * @var array $estados
-     */
-    static private array $estados = [
+    private const INVALID_SEQUENCES = [
+        '00000000000',
+        '11111111111',
+        '22222222222',
+        '33333333333',
+        '44444444444',
+        '55555555555',
+        '66666666666',
+        '77777777777',
+        '88888888888',
+        '99999999999'
+    ];
+
+    /** @var array<int, array<int, string>> */
+    private static array $estados = [
         ['RS'],
-        [
-            'DF',
-            'GO',
-            'MT',
-            'MS',
-            'TO'
-        ],
-        [
-            'AM',
-            'PA',
-            'RR',
-            'AP',
-            'AC',
-            'RO'
-        ],
-        [
-            'CE',
-            'MA',
-            'PI'
-        ],
-        [
-            'PB',
-            'PE',
-            'AL',
-            'RN'
-        ],
-        [
-            'BA',
-            'SE'
-        ],
+        ['DF', 'GO', 'MT', 'MS', 'TO'],
+        ['AM', 'PA', 'RR', 'AP', 'AC', 'RO'],
+        ['CE', 'MA', 'PI'],
+        ['PB', 'PE', 'AL', 'RN'],
+        ['BA', 'SE'],
         ['MG'],
-        [
-            'RJ',
-            'ES'
-        ],
+        ['RJ', 'ES'],
         ['SP'],
-        [
-            'PR',
-            'SC'
-        ]
+        ['PR', 'SC']
     ];
 
     /**
@@ -59,44 +47,33 @@ class CPF
      */
     public static function validateCPF(?string $cpf = null): bool
     {
-
         if (empty($cpf)) {
             return false;
         }
 
-        $cpf = preg_replace("/\D/", "", $cpf);
+        $cpf = (string) preg_replace("/\D/", "", $cpf);
 
-        if (strlen($cpf) != 11) {
+        if (strlen($cpf) !== 11 || in_array($cpf, self::INVALID_SEQUENCES, true)) {
             return false;
-        } else if (
-            $cpf == '00000000000' ||
-            $cpf == '11111111111' ||
-            $cpf == '22222222222' ||
-            $cpf == '33333333333' ||
-            $cpf == '44444444444' ||
-            $cpf == '55555555555' ||
-            $cpf == '66666666666' ||
-            $cpf == '77777777777' ||
-            $cpf == '88888888888' ||
-            $cpf == '99999999999') {
-            return false;
-            // Calcula os dígitos verificadores para verificar se o
-            // CPF é válido
-        } else {
-
-            for ($t = 9; $t < 11; $t++) {
-
-                for ($d = 0, $c = 0; $c < $t; $c++) {
-                    $d += $cpf[$c] * (($t + 1) - $c);
-                }
-                $d = ((10 * $d) % 11) % 10;
-                if ($cpf[$c] != $d) {
-                    return false;
-                }
-            }
-
-            return (bool)$cpf;
         }
+
+        return self::validateDigits($cpf);
+    }
+
+    private static function validateDigits(string $cpf): bool
+    {
+        for ($t = 9; $t < 11; $t++) {
+            $sum = 0;
+            for ($c = 0; $c < $t; $c++) {
+                $sum += (int)$cpf[$c] * (($t + 1) - $c);
+            }
+            $digit = ((10 * $sum) % 11) % 10;
+            if ((int)$cpf[$t] !== $digit) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -152,7 +129,7 @@ class CPF
      * @param $dividendo
      * @return float
      */
-    private static function mod($dividendo): float
+    private static function mod(float|int $dividendo): float
     {
         return round($dividendo - (floor($dividendo / 11) * 11));
     }
@@ -161,53 +138,53 @@ class CPF
      * Diz em qual(is) UF(s) o CPF pode ter sido emitido, caso não seja possível retorna false
      * @param string $cpf
      * @param bool $inText
-     * @return string|bool|array
+     * @return array<int, string>|string|false
      */
-    public static function whichUF(string $cpf, bool $inText = true)
+    public static function whichUF(string $cpf, bool $inText = true): array|string|false
     {
-        if (strlen($cpf) === 11 || strlen($cpf) === 14) {
-            // Remove pontos e traços
-            if (strlen($cpf) === 14) {
-                $cpf = preg_replace("/\D/", "", $cpf);
-                if (strlen($cpf) !== 11) {
-                    return false;
-                }
-            }
-
-            // Se não for um valor numérico
-            if (!is_numeric($cpf)) {
-                return false;
-            }
-
-            // Pega o nono dígito
-            $digito = (int)substr($cpf, 8, 1);
-
-            $estados = self::$estados[$digito];
-
-            // Se não quiser os estados em formato de texto, retorna o array
-            if (!$inText) {
-                return $estados;
-            }
-
-            // Transforma o array em texto
-            $text = '';
-            for ($i = 0; $i < count($estados); $i++) {
-                if ($i != 0 && $i + 1 === count($estados)) {
-                    $text .= ' ou ';
-                }
-
-                $text .= $estados[$i];
-
-                if ($i + 3 <= count($estados)) {
-                    $text .= ', ';
-                }
-
-            }
-
-            return $text;
-        } else {
+        if (!is_string($cpf) || (strlen($cpf) !== 11 && strlen($cpf) !== 14)) {
             return false;
         }
-    }
 
+        // Remove pontos e traços
+        if (strlen($cpf) === 14) {
+            $cpf = (string) preg_replace("/\D/", "", $cpf);
+            if (strlen($cpf) !== 11) {
+                return false;
+            }
+        }
+
+        // Se não for um valor numérico
+        if (!is_numeric($cpf)) {
+            return false;
+        }
+
+        // Pega o nono dígito
+        $digito = (int)substr($cpf, 8, 1);
+
+        $estados = self::$estados[$digito];
+
+        // Se não quiser os estados em formato de texto, retorna o array
+        if (!$inText) {
+            /** @var array<int, string> $estados */
+            return $estados;
+        }
+
+        // Transforma o array em texto
+        $text = '';
+        for ($i = 0; $i < count($estados); $i++) {
+            if ($i != 0 && $i + 1 === count($estados)) {
+                $text .= ' ou ';
+            }
+
+            $text .= $estados[$i];
+
+            if ($i + 3 <= count($estados)) {
+                $text .= ', ';
+            }
+        }
+
+        /** @var string $text */
+        return $text;
+    }
 }
